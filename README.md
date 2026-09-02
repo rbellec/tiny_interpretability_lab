@@ -1,28 +1,27 @@
 # Tiny Interpretability Lab
 
-*Understanding transformers through small, clean experiments — using a minimal constructed language, Toki Pona, as a controlled laboratory.*
+*Small, legible experiments on how transformers work — and on whether the tools we use to look at them measure what they claim to measure.*
 
-## The idea
+## The question underneath
 
-Toki Pona is a constructed language with ~130 words and a small, regular grammar: a handful of particles carry most of the syntactic structure — `li` marks the predicate, `e` marks the object, `pi` regroups modifiers. That minimality is the point.
+Interpretability methods produce measurements. The question I keep coming back to is how we know that a given measurement measures what it claims to — and I work on it through different doors:
 
-A language model trained on such a language is small enough to study end to end, yet its grammar still has real structure — clear syntactic roles, compositional phrases — to host genuine questions about how a transformer represents and manipulates them. The bet is simple: a deliberately small, *knowable* language gives real analytic traction. When the ground-truth structure is explicit, circuits are more traceable, ablations are cleaner, and results are legible. You can ask "how does the model track the object marked by `e`?" and hope to actually answer it.
+- **By generalization.** A signature that does not survive from one model to the next is a property of the measurement, not of the model.
+- **By ground truth.** A language whose grammar is small, regular and fully known gives a referent against which a method's findings can be checked.
 
-## What this repo is (and isn't)
+Each experiment lives in its own directory, is self-contained, and is meant to be readable on its own.
 
-- **Is:** a lab notebook — a place to build a small Toki Pona language model and run minimal, well-scoped interpretability experiments on it, one at a time.
-- **Isn't:** a from-scratch-GPT tutorial. The engineering (a small transformer, a training loop) is a means; the goal is the interpretability *result* that the language's minimality makes possible.
-- Tooling builds on the standard mechanistic-interpretability stack (TransformerLens: logit lens, activation patching).
+## Experiments
 
-## Roadmap (early, deliberately modest)
+| Directory | Question | Status |
+|---|---|---|
+| [`experiments/jacobian-lens-scale/`](experiments/jacobian-lens-scale/) | The Jacobian lens has a published quantitative signature over depth. Does it survive across model scale and across model families — or is it a property of the summary statistic? | Active |
+| [`experiments/toki-pona/`](experiments/toki-pona/) | A small language model trained on Toki Pona (~130 words, a handful of grammatical particles) as a controlled laboratory: syntactic roles as ground truth for probing and circuit work. | Design stage — see its README for scope and roadmap |
 
-0. **Substrate** — a small, GPT-2-scale Toki Pona transformer that trains and generates (from scratch, JAX/Equinox).
-1. **A particle's circuit** — how the model tracks a single syntactic role (e.g. `li` / `e`): the attention pattern or small structure that implements it.
-2. **From-scratch vs. finetuned** — compare representations between a model trained only on Toki Pona and an open model finetuned on it (only if a clean comparison emerges).
-3. **Filler tokens on a minimal language** — whether a small model trained on a minimal language benefits from filler / scratchpad tokens on multi-hop tasks, and where. The class of problems where this helps is characterised by the quantifier depth of a first-order formula — which connects this directly to formal-language theory. (After *Let's Think Dot by Dot*, Pfau, Merrill & Bowman, 2024.)
+## Conventions
 
-**North star** (gated on reading the paper first): reimplementing *Explaining Attention with Program Synthesis* on the Toki Pona model — attention explained in the language of programs.
+- Scripts are committed **as they were run**, not rewritten into a library. Where a number in a write-up comes from a script here, the command that produces it is given in that experiment's README.
+- Every lens/measurement comparison carries a control arm computed in the same code path, and is read against a per-model baseline rather than against zero.
+- Model weights, fitted lenses and cached activations are not in git. Each experiment's README says where they come from.
 
-## Status
-
-Early — bootstrapping (started July 2026). This README is the design and scope of the project; experiments and write-ups will follow, one small and legible result at a time.
+Started July 2026.

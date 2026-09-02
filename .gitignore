@@ -1,0 +1,33 @@
+# Virtual environments and package caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.uv/
+uv.lock.local
+
+# Model weights, fitted lenses, cached activations — never in git
+*.pt
+*.safetensors
+*.bin
+*.zarr/
+*.npz
+checkpoints/
+tokenizer/
+corpus/
+.cache/
+hf_cache/
+
+# Nested working repos and vendored libraries (kept outside this repo)
+/TransformerLens/
+/data/
+/training/
+/probes/
+
+# Secrets and local environment
+.env
+*.env
+!.env.example
+
+# OS noise
+.DS_Store
