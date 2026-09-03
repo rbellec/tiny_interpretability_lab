@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 HERE = Path(__file__).parent
 
 for f in sorted(HERE.glob("results/kurtosis_*.json")):
-    if "kurtosis_random_" in f.name:
+    if "kurtosis_random_" in f.name or f.stem.endswith("_long"):   # main prompt set only
         continue
     data = json.load(open(f))
     meta = data["meta"]

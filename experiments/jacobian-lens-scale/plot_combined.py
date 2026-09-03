@@ -23,7 +23,7 @@ rand_files = sorted(HERE.glob("results/kurtosis_random_*.json"))
 n_panels = 3 if rand_files else 2
 fig, axes = plt.subplots(1, n_panels, figsize=(6 * n_panels, 4.5), sharey=True)
 for f in sorted(HERE.glob("results/kurtosis_*.json")):
-    if "kurtosis_random_" in f.name:
+    if "kurtosis_random_" in f.name or f.stem.endswith("_long"):   # main prompt set only
         continue
     data = json.load(open(f))
     short = data["meta"]["short"]
