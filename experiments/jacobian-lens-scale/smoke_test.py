@@ -79,12 +79,12 @@ def s4(m, base_logits):
         abl = m.run_with_hooks(PROMPT, fwd_hooks=[(name, zero_it)])
     delta = (abl[0, -1] - base_logits[0, -1]).abs().max().item()
     print(f"   ablation {name} -> |delta logit max| = {delta:.3f}")
-    assert delta > 1e-3, "le hook ne mord pas : delta nul"
+    assert delta > 1e-3, "the hook does not bite: zero delta"
     return delta
 
 
 # %% 5 - JacobianLens: readout + logit-lens control arm
-@stage("5. JacobianLens readout + controle")
+@stage("5. JacobianLens readout + control")
 def s5(m):
     from transformer_lens.tools.analysis.jacobian_lens import JacobianLens
     reg = json.load(open("transformer_lens/tools/analysis/jacobian_lens_registry.json"))
@@ -121,14 +121,14 @@ def s6(out):
         layers = sorted(r.lens_logits.keys())
         vals = [excess_kurtosis(r.lens_logits[l][-1]).item() for l in layers]
         curves[use_j] = (layers, vals)
-        tag = "J-Lens" if use_j else "logit-lens (controle)"
+        tag = "J-Lens" if use_j else "logit-lens (control)"
         print(f"   {tag:26s} min={min(vals):8.2f} max={max(vals):8.2f}")
 
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.plot(*curves[True], "o-", label="J-Lens")
-    ax.plot(*curves[False], "s--", label="logit-lens (bras de controle)")
+    ax.plot(*curves[False], "s--", label="logit-lens (control arm)")
     ax.set_xlabel("layer"); ax.set_ylabel("excess kurtosis (g2)")
-    ax.set_title(f"{SHORT} — profil de kurtosis, deux bras")
+    ax.set_title(f"{SHORT} — kurtosis profile, both arms")
     ax.legend(); ax.grid(alpha=.3); fig.tight_layout()
     p = FIG / "smoke_kurtosis_pythia70m_deduped.png"
     fig.savefig(p, dpi=130)

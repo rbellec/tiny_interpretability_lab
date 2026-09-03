@@ -1,20 +1,20 @@
-// Tables d'analyse P6 — 12 modeles, 2 perspectives (par famille, par taille).
-// Compiler :  typst compile analysis_tables.typ
+// Per-model kurtosis profiles, 12 models, two orderings (by family, by size).
+// Compile:  typst compile analysis_tables.typ
 #set page(paper: "a4", margin: 1.2cm)
 #set text(size: 9pt)
 
 #let row(short, family, variant, size, others, layers, dmodel) = (
   [
     #text(weight: "bold", size: 10pt)[#short] \
-    famille : #family (#others autres) \
-    variante : #variant \
-    taille : #size \
-    #text(fill: gray)[#layers couches · d_model #dmodel]
+    family: #family (#others others) \
+    variant: #variant \
+    size: #size \
+    #text(fill: gray)[#layers layers · d_model #dmodel]
   ],
   image("figures/sweep_kurtosis_" + short + ".png", width: 100%),
 )
 
-// short, famille, variante, taille, autres-de-la-famille, n_layers, d_model
+// short, family, variant, size, others-in-family, n_layers, d_model
 #let models = (
   ("gemma-3-270m",    "gemma-3",  "pt", "270M", 7, 18, 640),
   ("gemma-3-270m-it", "gemma-3",  "it", "270M", 7, 18, 640),
@@ -30,7 +30,7 @@
   ("qwen3.5-9b-pt",   "qwen3.5",  "pt", "9B",   3, 32, 4096),
 )
 
-// ordre par taille croissante (tie-break : famille puis variante pt < it)
+// increasing size (tie-break: family, then variant pt < it)
 #let by_size = (
   ("gemma-3-270m",    "gemma-3",  "pt", "270M", 7, 18, 640),
   ("gemma-3-270m-it", "gemma-3",  "it", "270M", 7, 18, 640),
@@ -54,13 +54,13 @@
   ..rows.map(m => row(..m)).flatten(),
 )
 
-= Sweep kurtosis P6 — vue par famille
-#text(fill: gray)[20 prompts, toutes positions valides, estimateur g2 biaisé (float64), médiane ± IQR. Généré le 3 sept. 2026.]
+= Kurtosis sweep — by family
+#text(fill: gray)[20 prompts, all valid positions, biased g2 estimator (float64), median ± IQR. Generated 3 Sept. 2026.]
 
 #make_table(models)
 
 #pagebreak()
 
-= Sweep kurtosis P6 — vue par taille croissante
+= Kurtosis sweep — by increasing size
 
 #make_table(by_size)

@@ -1,8 +1,8 @@
-# Jeu de prompts LONGS (axe position / longueur de contexte). Un prompt par ligne,
-# sauf blocs de code : lignes de continuation indentees de 4 espaces (cf. load_prompts).
-# Style pre-entrainement, ~110-150 tokens chacun (tokenizer Gemma), sans chat template. Versionne, cite dans le write-up.
-# v2 (03/09/2026) : 10 -> 20 prompts, prompt code remis en Python valide, reequilibrage
-# vers le factuel/technique (code x2, arithmetique, liste, science, histoire, technique, dialogue, courrier).
+# LONG prompt set (position / context-length axis). One prompt per line, except code
+# blocks: lines indented by 4 spaces continue the previous prompt (see load_prompts).
+# Pre-training style, ~110-160 tokens each (Gemma tokenizer), no chat template. Versioned; cited in the write-up.
+# v2 (2026-09-03): 10 -> 20 prompts, code prompt restored to valid Python, rebalanced
+# towards factual/technical (code x2, arithmetic, list, science, history, technical, dialogue, letter).
 The village of Saint-Aubin sits at the mouth of a small river, and for most of its history its fortunes rose and fell with the herring trade. When the fish moved north in the 1880s, half the boats were sold within a decade, and the families who stayed turned to oyster farming in the shallow beds along the estuary. Today the harbor is quieter, but on market days the old fishermen still gather near the lighthouse to argue about the weather, the price of diesel, and whether the new mayor will finally repair the
 Photosynthesis converts light energy into chemical energy stored in sugars. In the light-dependent reactions, which take place in the thylakoid membranes, water molecules are split, releasing oxygen as a by-product and producing ATP and NADPH. These energy carriers are then consumed in the Calvin cycle, where carbon dioxide from the atmosphere is fixed by the enzyme RuBisCO and progressively reduced to form three-carbon sugars. Because RuBisCO also reacts with oxygen, plants in hot, dry climates have evolved alternative pathways such as C4 and CAM to limit the wasteful process known as
 Margaret had promised herself she would not open the letter until after dinner, but the envelope sat on the kitchen table like a small, patient animal, and by the time the potatoes were boiling she had already read it twice. Her brother wanted to sell the house. Not eventually, not once their mother had settled into the care home, but now, this spring, before the roof needed work and before the neighbors' new fence made the garden look even smaller than it was. She folded the pages, put them back in the envelope, and told herself that the sensible thing to do was to call him in the morning and say

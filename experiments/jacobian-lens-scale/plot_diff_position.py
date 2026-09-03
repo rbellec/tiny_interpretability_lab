@@ -1,13 +1,15 @@
-"""Figures P6 complementaires (03/09, soir) :
-  1. diff_<short>.png / diff_all_models.png : J-Lens moins controle (mediane par couche),
-     IC95 bootstrap PAR PROMPT (les positions d'un meme prompt sont correlees, on
-     reechantillonne les prompts, pas les positions). Position 0 (BOS) et derniere
-     couche (identique dans tous les bras par construction) EXCLUES.
-  2. position_all_models.png : meme J-C, par tranche de position dans le prompt.
-  3. position_within_prompt.txt : controle du confondant "prompt" — sur les seuls
-     prompts longs (>=16 tokens), positions 1-5 vs 11-15 des MEMES prompts.
-  4. heatmap_<short>.png : J-C en (profondeur x position) pour 4b et 12b.
-Lit uniquement results/kurtosis_<short>.json — aucun modele charge.
+"""Lens-specific figures (J-Lens minus logit-lens control):
+  1. diff_<short>.png / diff_all_models.png: J minus control (median per layer),
+     95% CI by bootstrap OVER PROMPTS (positions within a prompt are correlated,
+     so prompts are resampled, not positions). Position 0 (BOS) and the final
+     layer (identical in all arms by construction) are EXCLUDED.
+  2. position_all_models.png: same J-C, by token-position bucket in the prompt.
+  3. position_within_prompt.txt: control for the "prompt" confounder — on the
+     long prompts only (>=16 tokens), positions 1-5 vs 11-15 of the SAME prompts.
+  4. heatmap_<short>.png: J-C over (depth x position) for the larger models.
+With the tag "_long" (argv[1]) the same figures are produced from the long-prompt
+run (kurtosis_<short>_long.json), with wider position buckets and a 40-59 late window.
+Reads only results/kurtosis_<short>[<tag>].json — no model is loaded.
 """
 import json
 import numpy as np
@@ -17,7 +19,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import sys
 
-TAG = sys.argv[1] if len(sys.argv) > 1 else ""      # ex. "_long" -> lit kurtosis_<short>_long.json
+TAG = sys.argv[1] if len(sys.argv) > 1 else ""      # e.g. "_long" -> reads kurtosis_<short>_long.json
 
 HERE = Path(__file__).parent
 FIG = HERE / "figures"
@@ -37,8 +39,8 @@ def load(m):
     pid = np.concatenate([[i] * n for i, n in enumerate(sl)])
     pos = np.concatenate([np.arange(n) for n in sl])
     assert len(pid) == J.shape[1]
-    keep = pos >= 1                      # BOS exclue
-    J, C, pid, pos = J[:-1, keep], C[:-1, keep], pid[keep], pos[keep]   # derniere couche exclue
+    keep = pos >= 1                      # BOS excluded
+    J, C, pid, pos = J[:-1, keep], C[:-1, keep], pid[keep], pos[keep]   # final layer excluded
     dep = 100 * np.arange(L - 1) / (L - 1)
     return J, C, pid, pos, dep
 
@@ -56,7 +58,7 @@ def boot_ci(J, C, pid, n=1000):
     return np.percentile(out, [2.5, 97.5], axis=0)
 
 
-# ---------- 1. J - C avec IC bootstrap ----------
+# ---------- 1. J - C with bootstrap CI ----------
 ncol = 4; nrow = -(-len(ORDER) // ncol)
 fig_all, axes = plt.subplots(nrow, ncol, figsize=(16, 3 * nrow), sharex=True, squeeze=False)
 for ax, m in zip(axes.flat, ORDER):
@@ -84,7 +86,7 @@ for a in axes[:, 0]: a.set_ylabel('Δ g2 (J − control)')
 fig_all.suptitle('J-Lens minus logit-lens control — median over prompts×positions (pos ≥ 1), 95% CI by prompt bootstrap, final layer excluded')
 fig_all.tight_layout(); fig_all.savefig(FIG / f'diff_all_models{TAG}.png', dpi=120); plt.close(fig_all)
 
-# ---------- 2. par tranche de position ----------
+# ---------- 2. by position bucket ----------
 fig, axes = plt.subplots(nrow, ncol, figsize=(16, 3 * nrow), sharex=True, squeeze=False)
 for ax, m in zip(axes.flat, ORDER):
     J, C, pid, pos, dep = load(m)
@@ -112,7 +114,7 @@ for a in axes[:, 0]: a.set_ylabel('Δ g2 (J − control)')
 fig.suptitle('Lens-specific kurtosis by token position in the prompt (median over prompts×positions in bucket)')
 fig.tight_layout(); fig.savefig(FIG / f'position_all_models{TAG}.png', dpi=120); plt.close(fig)
 
-# ---------- 3. controle du confondant prompt ----------
+# ---------- 3. within-prompt control for the prompt confounder ----------
 lines = [f'TAG={TAG!r} — model | long prompts | peak(J-C) pos1-5 | peak(J-C) late window (11-15, or 40-59 for _long) | per-prompt sign (late>early) | CI95 boot of (late-early) peak']
 for m in ORDER:
     J, C, pid, pos, dep = load(m)
@@ -136,7 +138,7 @@ for m in ORDER:
 (HERE / f'position_within_prompt{TAG}.txt').write_text('\n'.join(lines) + '\n')
 print('\n'.join(lines))
 
-# ---------- 4. heatmaps profondeur x position ----------
+# ---------- 4. depth x position heatmaps ----------
 for m in [x for x in ['gemma-3-4b', 'gemma-3-12b', 'qwen3.5-9b-pt'] if x in ORDER]:
     J, C, pid, pos, dep = load(m)
     P = 20 if not TAG else min(int(pos.max()), 120)
