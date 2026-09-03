@@ -13,6 +13,8 @@ Methodological rules enforced here:
     cd /path/to/TransformerLens
     .venv/bin/python /path/to/sweep_kurtosis.py gemma-3-270m google/gemma-3-270m float32
     .venv/bin/python /path/to/sweep_kurtosis.py gemma-3-1b  google/gemma-3-1b-pt bfloat16
+    # long prompts (position / context-length axis): prompt file + output suffix
+    .venv/bin/python /path/to/sweep_kurtosis.py gemma-3-12b google/gemma-3-12b-pt bfloat16 prompts_long.txt _long
     ...
 
 Output: results/kurtosis_<short>.json + one figure per model.
@@ -32,8 +34,8 @@ OUT.mkdir(exist_ok=True)
 FIG.mkdir(exist_ok=True)
 
 
-def load_prompts():
-    lines = (HERE / "prompts.txt").read_text().splitlines()
+def load_prompts(prompt_file="prompts.txt"):
+    lines = (HERE / prompt_file).read_text().splitlines()
     # convention: one prompt per non-empty, non-comment line, EXCEPT indented
     # lines which continue the previous prompt (the python code block).
     prompts = []
@@ -58,13 +60,15 @@ def excess_kurtosis(x):
     return m4 / m2.pow(2) - 3.0
 
 
-def main(short: str, hf_id: str, dtype_name: str = "bfloat16"):
+def main(short: str, hf_id: str, dtype_name: str = "bfloat16",
+         prompt_file: str = "prompts.txt", tag: str = ""):
+    """tag: suffix of the output files (e.g. '_long' for prompts_long.txt)."""
     from transformer_lens.model_bridge import TransformerBridge
     from transformer_lens.tools.analysis.jacobian_lens import JacobianLens
 
     dev = "mps" if torch.backends.mps.is_available() else "cpu"
     dtype = getattr(torch, dtype_name)
-    prompts = load_prompts()
+    prompts = load_prompts(prompt_file)
     print(f"== {short} | {len(prompts)} prompts | {dev}/{dtype_name}")
 
     t0 = time.time()
@@ -80,7 +84,7 @@ def main(short: str, hf_id: str, dtype_name: str = "bfloat16"):
             "d_vocab": model.cfg.d_vocab, "device": dev,
             "estimator": "g2 biased (m4/m2^2 - 3), float64",
             "n_prompts": len(prompts), "positions": "all valid readout positions",
-            "prompt_file": "prompts.txt", "seq_lens": [], "timings_s": {}}
+            "prompt_file": prompt_file, "seq_lens": [], "timings_s": {}}
 
     for pi, prompt in enumerate(prompts):
         t0 = time.time()
@@ -100,7 +104,7 @@ def main(short: str, hf_id: str, dtype_name: str = "bfloat16"):
         meta["timings_s"][f"prompt_{pi}"] = round(dt, 1)
         print(f"   prompt {pi+1:2d}/{len(prompts)} ({dt:5.1f}s) : {prompt[:50]!r}")
 
-    out = OUT / f"kurtosis_{short}.json"
+    out = OUT / f"kurtosis_{short}{tag}.json"
     json.dump({"meta": meta, "kurtosis": rec}, open(out, "w"))
     print(f"   -> {out}")
 
@@ -125,7 +129,7 @@ def main(short: str, hf_id: str, dtype_name: str = "bfloat16"):
     ax.set_ylabel("excess kurtosis (g2), median ± IQR")
     ax.set_title(f"{short} — {len(prompts)} prompts, all valid positions")
     ax.legend(); ax.grid(alpha=.3); fig.tight_layout()
-    p = FIG / f"sweep_kurtosis_{short}.png"
+    p = FIG / f"sweep_kurtosis_{short}{tag}.png"
     fig.savefig(p, dpi=130)
     print(f"   figure -> {p}")
 
