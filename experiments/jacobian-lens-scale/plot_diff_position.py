@@ -1,14 +1,13 @@
-"""Complementary figures (lens-specific view and position axis).
-  1. diff_<short>.png / diff_all_models.png : J-Lens minus logit-lens control (median per
-     layer), 95% CI by bootstrap OVER PROMPTS (positions within a prompt are correlated,
-     so prompts are resampled, not positions). Position 0 (BOS) and the final layer
-     (identical in every arm by construction) are EXCLUDED.
-  2. position_all_models.png : same J-C, split by token-position bucket in the prompt.
-  3. position_within_prompt.txt : control for the "prompt" confounder -- on long prompts
-     only, early vs late positions of the SAME prompts.
-  4. heatmap_<short>.png : J-C over (depth x position).
-Reads only results/kurtosis_<short>[TAG].json -- no model is loaded.
-Usage: python plot_diff_position.py [_long]
+"""Figures P6 complementaires (03/09, soir) :
+  1. diff_<short>.png / diff_all_models.png : J-Lens moins controle (mediane par couche),
+     IC95 bootstrap PAR PROMPT (les positions d'un meme prompt sont correlees, on
+     reechantillonne les prompts, pas les positions). Position 0 (BOS) et derniere
+     couche (identique dans tous les bras par construction) EXCLUES.
+  2. position_all_models.png : meme J-C, par tranche de position dans le prompt.
+  3. position_within_prompt.txt : controle du confondant "prompt" — sur les seuls
+     prompts longs (>=16 tokens), positions 1-5 vs 11-15 des MEMES prompts.
+  4. heatmap_<short>.png : J-C en (profondeur x position) pour 4b et 12b.
+Lit uniquement results/kurtosis_<short>.json — aucun modele charge.
 """
 import json
 import numpy as np
@@ -18,7 +17,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import sys
 
-TAG = sys.argv[1] if len(sys.argv) > 1 else ""      # e.g. "_long" -> reads kurtosis_<short>_long.json
+TAG = sys.argv[1] if len(sys.argv) > 1 else ""      # ex. "_long" -> lit kurtosis_<short>_long.json
 
 HERE = Path(__file__).parent
 FIG = HERE / "figures"
@@ -38,8 +37,8 @@ def load(m):
     pid = np.concatenate([[i] * n for i, n in enumerate(sl)])
     pos = np.concatenate([np.arange(n) for n in sl])
     assert len(pid) == J.shape[1]
-    keep = pos >= 1                      # BOS excluded
-    J, C, pid, pos = J[:-1, keep], C[:-1, keep], pid[keep], pos[keep]   # final layer excluded
+    keep = pos >= 1                      # BOS exclue
+    J, C, pid, pos = J[:-1, keep], C[:-1, keep], pid[keep], pos[keep]   # derniere couche exclue
     dep = 100 * np.arange(L - 1) / (L - 1)
     return J, C, pid, pos, dep
 
@@ -57,7 +56,7 @@ def boot_ci(J, C, pid, n=1000):
     return np.percentile(out, [2.5, 97.5], axis=0)
 
 
-# ---------- 1. J - C with bootstrap CI ----------
+# ---------- 1. J - C avec IC bootstrap ----------
 ncol = 4; nrow = -(-len(ORDER) // ncol)
 fig_all, axes = plt.subplots(nrow, ncol, figsize=(16, 3 * nrow), sharex=True, squeeze=False)
 for ax, m in zip(axes.flat, ORDER):
@@ -85,7 +84,7 @@ for a in axes[:, 0]: a.set_ylabel('Δ g2 (J − control)')
 fig_all.suptitle('J-Lens minus logit-lens control — median over prompts×positions (pos ≥ 1), 95% CI by prompt bootstrap, final layer excluded')
 fig_all.tight_layout(); fig_all.savefig(FIG / f'diff_all_models{TAG}.png', dpi=120); plt.close(fig_all)
 
-# ---------- 2. by position bucket ----------
+# ---------- 2. par tranche de position ----------
 fig, axes = plt.subplots(nrow, ncol, figsize=(16, 3 * nrow), sharex=True, squeeze=False)
 for ax, m in zip(axes.flat, ORDER):
     J, C, pid, pos, dep = load(m)
@@ -97,12 +96,23 @@ for ax, m in zip(axes.flat, ORDER):
         lab = f'pos {lo_}-{hi_ if hi_ < 99 else "+"} (n={mask.sum()}, {nprompt} prompts)'
         ax.plot(dep, diff_profile(J, C, mask), '-', lw=1.2 + .5 * k, color=plt.cm.viridis(k / max(1, len(BUCKETS) - 1)), label=lab)
     ax.set_title(m); ax.grid(alpha=.3); ax.legend(fontsize=7)
+    # per-model copy of the same panel
+    f1, a1 = plt.subplots(figsize=(7.5, 4.2))
+    a1.axvspan(38, 92, color='grey', alpha=.08); a1.axhline(0, color='k', lw=.6)
+    for k, (lo_, hi_) in enumerate(BUCKETS):
+        mask = (pos >= lo_) & (pos <= hi_)
+        if mask.sum() < 10: continue
+        a1.plot(dep, diff_profile(J, C, mask), '-', lw=1.2 + .5 * k, color=plt.cm.viridis(k / max(1, len(BUCKETS) - 1)),
+                label=f'pos {lo_}-{hi_ if hi_ < 999 else "+"} (n={mask.sum()}, {len(set(pid[mask]))} prompts)')
+    a1.set_xlabel('relative depth (%)'); a1.set_ylabel('Δ g2 (J − control)')
+    a1.set_title(f'{m}{TAG} — lens-specific kurtosis by token position'); a1.legend(fontsize=8); a1.grid(alpha=.3)
+    f1.tight_layout(); f1.savefig(FIG / f'position_{m}{TAG}.png', dpi=130); plt.close(f1)
 for a in axes[-1]: a.set_xlabel('relative depth (%)')
 for a in axes[:, 0]: a.set_ylabel('Δ g2 (J − control)')
 fig.suptitle('Lens-specific kurtosis by token position in the prompt (median over prompts×positions in bucket)')
 fig.tight_layout(); fig.savefig(FIG / f'position_all_models{TAG}.png', dpi=120); plt.close(fig)
 
-# ---------- 3. prompt-confounder control ----------
+# ---------- 3. controle du confondant prompt ----------
 lines = [f'TAG={TAG!r} — model | long prompts | peak(J-C) pos1-5 | peak(J-C) late window (11-15, or 40-59 for _long) | per-prompt sign (late>early) | CI95 boot of (late-early) peak']
 for m in ORDER:
     J, C, pid, pos, dep = load(m)
@@ -126,7 +136,7 @@ for m in ORDER:
 (HERE / f'position_within_prompt{TAG}.txt').write_text('\n'.join(lines) + '\n')
 print('\n'.join(lines))
 
-# ---------- 4. depth x position heatmaps ----------
+# ---------- 4. heatmaps profondeur x position ----------
 for m in [x for x in ['gemma-3-4b', 'gemma-3-12b', 'qwen3.5-9b-pt'] if x in ORDER]:
     J, C, pid, pos, dep = load(m)
     P = 20 if not TAG else min(int(pos.max()), 120)
