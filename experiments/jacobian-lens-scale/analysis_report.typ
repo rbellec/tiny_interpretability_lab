@@ -128,6 +128,22 @@
 ]
 #v(6pt)
 #pagebreak()
+= Axe contexte — run « prompts longs »
+#text(fill: gray)[20 prompts de 110-158 tokens (`prompts_long.txt`), mêmes bras, même estimateur ; positions ≥ 1, dernière couche exclue. Modèles : gemma-3-270m, gemma-3-4b, gemma-3-12b, qwen3.5-9b-pt.]
+== J−C par tranche de position
+#fig("figures/position_all_models_long.png", 100%)
+== J−C avec IC95 par prompt
+#fig("figures/diff_all_models_long.png", 100%)
+== Contrôle intra-prompt : pic J−C positions 1-5 vs 40-59 des mêmes prompts
+#table(columns: 6, stroke: 0.3pt + gray, inset: 4pt, align: center, [*modèle*], [*prompts*], [*pic pos 1-5*], [*pic pos 40-59*], [*tardif > précoce*], [*IC95 écart*],
+  [gemma-3-270m], [20], [0.51], [0.76], [11/20], [[ 0.05,  0.37]],
+  [gemma-3-4b], [20], [0.98], [1.32], [10/20], [[ 0.09,  0.60]],
+  [gemma-3-12b], [20], [1.32], [2.26], [14/20], [[ 0.33,  1.26]],
+  [qwen3.5-9b-pt], [20], [1.17], [1.35], [12/20], [[-0.01,  0.34]],
+)
+== Heatmaps profondeur × position
+#grid(columns: (1fr, 1fr), gutter: 4pt, fig("figures/heatmap_gemma-3-4b_long.png", 100%), fig("figures/heatmap_gemma-3-12b_long.png", 100%), fig("figures/heatmap_qwen3.5-9b-pt_long.png", 100%))
+#pagebreak()
 = Tableau récapitulatif (par famille, taille croissante)
 #table(columns: 9, stroke: 0.3pt + gray, inset: 4pt, align: center, [*modèle*], [*couches*], [*J−C base*], [*pic*], [*bosse*], [*IC95*], [*prompts > 0*], [*onset*], [*pos 1-5 → 11-15*],
   [gemma-3-270m], [18], [0.33], [0.58 \@ 65 %], [0.25], [\[0.14 ; 0.37\]], [20/20], [—], [0.43 → 0.80 (7/10)],

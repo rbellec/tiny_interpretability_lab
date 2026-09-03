@@ -1,6 +1,6 @@
-"""Reading report (PDF, French): overview (J-C for all models), then per family and
-size a compact per-model recap + its figures. Reads results/*.json, writes
-analysis_report.typ and compiles it with typst.   python make_report.py"""
+"""Rapport PDF P6 : vue d'ensemble (J-C tous modeles), puis par famille et taille,
+pour chaque modele un recap compact + ses figures. Lit results/*.json, ecrit
+analysis_report.typ et compile (typst).   python make_report.py"""
 import json, subprocess
 import numpy as np
 from pathlib import Path
@@ -74,6 +74,28 @@ for fam, models in FAM.items():
         figs = [f'figures/sweep_kurtosis_{m}.png', f'figures/diff_{m}.png', f'figures/position_{m}.png'] + ([f'figures/heatmap_{m}.png'] if heat else [])
         grid = '#grid(columns: (1fr, 1fr), gutter: 4pt, ' + ', '.join(f'fig("{f}", 100%)' for f in figs) + ')'
         out.append('#block(breakable: false)[\n' + recap + grid + '\n]\n#v(6pt)')
+    out.append('#pagebreak()')
+
+# ---------- section prompts longs (si le run existe) ----------
+LONG = [x for x in sum(FAM.values(), []) if (HERE / f'results/kurtosis_{x}_long.json').exists()]
+if LONG:
+    d0 = json.load(open(HERE / f'results/kurtosis_{LONG[0]}_long.json'))['meta']
+    out.append('= Axe contexte — run « prompts longs »')
+    out.append(f'#text(fill: gray)[{d0["n_prompts"]} prompts de {min(d0["seq_lens"])}-{max(d0["seq_lens"])} tokens (`{d0["prompt_file"]}`), mêmes bras, même estimateur ; positions ≥ 1, dernière couche exclue. Modèles : {", ".join(LONG)}.]')
+    out.append('== J−C par tranche de position'); out.append('#fig("figures/position_all_models_long.png", 100%)')
+    out.append('== J−C avec IC95 par prompt'); out.append('#fig("figures/diff_all_models_long.png", 100%)')
+    txt = (HERE / 'position_within_prompt_long.txt').read_text().strip().splitlines() if (HERE / 'position_within_prompt_long.txt').exists() else []
+    if txt:
+        out.append('== Contrôle intra-prompt : pic J−C positions 1-5 vs 40-59 des mêmes prompts')
+        out.append('#table(columns: 6, stroke: 0.3pt + gray, inset: 4pt, align: center, [*modèle*], [*prompts*], [*pic pos 1-5*], [*pic pos 40-59*], [*tardif > précoce*], [*IC95 écart*],')
+        for ln in txt[1:]:
+            c = [x.strip() for x in ln.split('|')]
+            out.append('  ' + ', '.join(f'[{esc(x)}]' for x in c) + ',')
+        out.append(')')
+    heats = [x for x in LONG if (HERE / f'figures/heatmap_{x}_long.png').exists()]
+    if heats:
+        out.append('== Heatmaps profondeur × position')
+        out.append('#grid(columns: (1fr, 1fr), gutter: 4pt, ' + ', '.join(f'fig("figures/heatmap_{x}_long.png", 100%)' for x in heats) + ')')
     out.append('#pagebreak()')
 
 out.append('= Tableau récapitulatif (par famille, taille croissante)')

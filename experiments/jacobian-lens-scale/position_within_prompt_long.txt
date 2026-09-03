@@ -1,0 +1,5 @@
+TAG='_long' — model | long prompts | peak(J-C) pos1-5 | peak(J-C) late window (11-15, or 40-59 for _long) | per-prompt sign (late>early) | CI95 boot of (late-early) peak
+gemma-3-270m     | 20 |  0.51 |  0.76 | 11/20 | [ 0.05,  0.37]
+gemma-3-4b       | 20 |  0.98 |  1.32 | 10/20 | [ 0.09,  0.60]
+gemma-3-12b      | 20 |  1.32 |  2.26 | 14/20 | [ 0.33,  1.26]
+qwen3.5-9b-pt    | 20 |  1.17 |  1.35 | 12/20 | [-0.01,  0.34]
