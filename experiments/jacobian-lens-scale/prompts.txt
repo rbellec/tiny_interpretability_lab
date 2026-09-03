@@ -1,0 +1,25 @@
+# P6 prompt set — fixed, versioned, cited in the write-up.
+# Pretraining-like distribution, varied (factual, narrative, arithmetic,
+# multi-hop, code, list). One prompt per line, '#' lines ignored,
+# indented lines continue the previous prompt.
+The capital of France is Paris. The capital of Italy is
+The chemical symbol for gold is Au, and the symbol for silver is
+In 1969, Apollo 11 landed on the Moon. The first person to walk on its surface was
+The novel was slow at first, but by the final chapter she found herself unable to put it
+After the storm passed, the fishermen returned to the harbor and began repairing their
+calc: ( 4 + 17 ) * 2 + 7 =
+calc: 12 * 3 - 5 =
+The capital of the country that makes champagne is
+The author of Romeo and Juliet was born in the town of
+My grandmother's recipe calls for two cups of flour, one egg, and a pinch of
+def factorial(n):
+    return 1 if n == 0 else n *
+The train departs Lyon at 9:42 and arrives in Marseille at 11:17, so the journey takes about
+Water boils at 100 degrees Celsius at sea level, but on Mont Blanc it boils at a
+Shopping list: eggs, milk, bread, butter,
+The opposite of scarce is
+She speaks French, Italian, and a little bit of
+The drummer kept the marching column in line,
+Once upon a time, in a village at the edge of the forest, there lived an old
+The sum of the angles of a triangle is always
+Despite the criticism, the committee decided to approve the proposal because the evidence was
