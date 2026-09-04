@@ -1,4 +1,4 @@
-# Writing, draft
+# A lens-specific kurtosis signature emerges with scale in gemma-3 and not in qwen3.5
 
 
 
@@ -11,7 +11,7 @@ Written later.
 
 ## Key Experiments
 
-Verbalizable Representations Form a Global Workspace in LMs (Gurnee et al., 2026) (2) reports the existence of a characteristic band, reads as the J-space, on Claude. The question is whether a lens-specific signature exists in small open models, whether it grows with scale inside one family, and whether it holds across families.
+Verbalizable Representations Form a Global Workspace in LMs (Gurnee et al., 2026) (2) reports the existence of a characteristic band, which the paper reads as the J-space, on Claude. The question is whether a lens-specific signature exists in small open models, whether it grows with scale inside one family, and whether it holds across families.
 
 ### What are we measuring? The three arms
 
