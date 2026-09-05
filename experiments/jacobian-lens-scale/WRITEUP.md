@@ -246,26 +246,25 @@ The following next steps may be interesting and I would look for an informed opi
 
 ## Time log
 
-Tracked with Toggl from the first project-specific reading (paper ② and review ③); screenshot below. Generic background (field, TransformerLens, paper ①) is not counted, as allowed by the rules.
+Tracked with Toggl from the first project-specific reading (paper ② and review ③). Generic background (field, TransformerLens, paper ①) is not counted, as allowed by the rules. Entries as logged, grouped by day; the Toggl screenshot is in the Google Doc version of this document.
 
-| phase | what | hours |
+| day | Toggl entries | hours |
 |---|---|---|
-| Reading chosen for the project | paper ②, review ③, issue #1539 | ~__ (early-August reading of ② estimated, see note) |
-| Setup & smoke test | registry lenses, code path, estimator check | __ |
-| Sweep, 12 models | J-lens + logit-lens arms, 20 prompts | __ |
-| Analysis & figures | Δ, bootstrap CI, position buckets, heatmaps | __ |
-| Random orthogonal control | 4 gemma base models | __ |
-| Long-prompt run | 5 models, 20 prompts of 110–158 tokens | __ |
-| Write-up (this document) | | __ |
-| **Total under the cap** | | **__ / 20 h** |
-| Executive summary + form | separate 2 h allowance | __ / 2 h |
+| Sept 1–2 | Refresh reading of ② (ch. 2–3), reading of review ③ | 4 h 00 |
+| Sept 2 | MATS admission document, planning | 0 h 26 |
+| Sept 2 | Repo clean-up, sweep code, sweep started | 1 h 49 |
+| Sept 3 | Sweep of the 12 models, first result analysis | 2 h 58 |
+| Sept 3 | Analysis: Δ, bootstrap CI, position, random orthogonal arm | 1 h 42 |
+| Sept 3 | Write-up started; long-prompt run | 1 h 22 |
+| Sept 4 | Writing (4 sessions); Qwen3 ladder launched in the same slot, results not read | 6 h 22 |
+| Sept 5 | Fixing details, finishing the body, push to GitHub | 1 h 05 |
+| **Total under the cap** | | **19 h 44 / 20 h** |
+| Sept 5 | Executive summary + time log | 1 h 20 / 2 h allowance |
 
 Notes:
-- The early-August reading of ② is estimated, not logged: I had no information about MATS at the time and read it for myself. Estimate: __ h.
-- The Qwen3 ladder (`1.7B`, `4B`, `8B`, `14B`, appendix) was run after the cap and is not counted above: __ h.
+- The early-August reading of ② is estimated, not logged: I had no information about MATS at the time and read it for myself. Honest estimate: between 3 and 5 h, I did not track it. Counting the upper bound, the project total is under 25 h.
+- The Qwen3 ladder (`1.7B`, `4B`, `8B`, `14B`) was launched during the Sept 4 writing session, so its ~30 min of machine time and launch sit inside the 19 h 44. Its results were not read or used in this document; they go to an appendix after submission.
 - Agent use (Claude Code) for code scaffolding, figure scripts and table extraction; interpretation and text are mine.
-
-(Toggl screenshot here)
 
 ## References and related work
 
