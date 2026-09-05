@@ -1,10 +1,8 @@
 # A lens-specific kurtosis signature emerges with scale in gemma-3 and not in qwen3.5
 
-
-
 ## Executive summary
 
-Does the lens-specific kurtosis band reported in (2) on Claude exist in small open models, and does it grow with scale? 
+Does the lens-specific kurtosis band reported in (2) on Claude exist in small open models, and does it grow with scale?
 
 Method: I defined a measure: Δ = median J-lens kurtosis minus median logit-lens kurtosis, per layer. I Ran it on 12 models, gemma-3 `270m` to `12b` base and `-it`, qwen3.5 `0.8b` to `9b` using pre-fitted registry lenses, 20 prompts on all positions ≥ 1.
 
@@ -15,14 +13,9 @@ Results:
 - No signature detected in any evaluated qwen3.5: no band up to `9b`; the profile drifts up in the last third and never closes; whether this is family or size cannot be decided at these sizes.
 - Position: model behavior is stable from position 4 up to 150 tokens, in both families.
 
-Control by random orthogonal rotation correctly removed the band at all four scales as expected before the run. 
+Control by random orthogonal rotation correctly removed the band at all four scales as expected before the run.
 
-This is not a claim about existence of a global workspace but an exploration of the emergence of the described signature.  
-
-
-
-
-
+This is not a claim about existence of a global workspace but an exploration of the emergence of the described signature.
 
 
 ![FIGURE ES-1 — Δ (J-lens − logit lens) vs relative depth, eight gemma-3 models](figures/overlay_gemma_all.png)
@@ -36,7 +29,7 @@ Verbalizable Representations Form a Global Workspace in LMs (Gurnee et al., 2026
 
 Following definition in (2), a "delta" indicator has been defined using J-lens and logit lens this way:
 
-- A J-lens arm, called J, uses J-lens profile defined in (2): 
+- A J-lens arm, called J, uses J-lens profile defined in (2):
   - g2 is the biased plug-in estimator m4/m2² − 3, computed on the logits of the readout over the full vocabulary, for each layer, prompt and position, in float64. At n ≈ 250k the finite-sample bias is negligible.
   - Figures show g2 median ± IQR across prompts × positions using relative depth [0–100] for x-axis.
   - g2 is a normalized moment, so comparing across vocab sizes is fine at these sample sizes.
@@ -49,9 +42,9 @@ Idea of the delta arm comes from a discussion with @SanjidMzi on issue [Transfor
 
 Gemma 3 offers the broadest model size scale in the same family with pre-fitted lenses. This distribution allows to look where the signal could emerge. I decided to test with `270m`, `1b`, `4b` and `12b`, in `base` and `-it` version, that I could run locally and leave `27b` for post submission tests on an external pod. I did not find any prior J-space measurement on gemma-3 kurtosis.
 
-Behavior described in (2) has been reproduced in (3) on `Qwen3.6 27b`. Since `Qwen3.6` is not available in smaller models I went to `Qwen3.5`, `0.8b`, `2b`, `4b` and `9b`. Test on `27b` is also planned post submission. 
+Behavior described in (2) has been reproduced in (3) on `Qwen3.6 27b`. Since `Qwen3.6` is not available in smaller models I went to `Qwen3.5`, `0.8b`, `2b`, `4b` and `9b`. Test on `27b` is also planned post submission.
 
-Lenses used are pre-fitted lenses from registry (TransformerLens tools.analysis.jacobian_lens + its jacobian_lens_registry.json). Experiment is then a readout over the model's full vocabulary (262 144 for gemma `270m` and `1b`, 262 208 for larger gemma, 248 320 for Qwen models), calculation of g2 and control value (logit lens estimator) in float64 on 20 prompts. 
+Lenses used are pre-fitted lenses from registry (TransformerLens tools.analysis.jacobian_lens + its jacobian_lens_registry.json). Experiment is then a readout over the model's full vocabulary (262 144 for gemma `270m` and `1b`, 262 208 for larger gemma, 248 320 for Qwen models), calculation of g2 and control value (logit lens estimator) in float64 on 20 prompts.
 
 **Table 1 — Models and lenses.** All lenses are the pre-fitted ones from the TransformerLens registry; the checkpoint stage is the one the registry lens was fitted on. Readout over the full vocabulary. 20 prompts, 300 (gemma) / 279 (qwen) readout positions ≥ 1.
 
@@ -70,8 +63,6 @@ Lenses used are pre-fitted lenses from registry (TransformerLens tools.analysis.
 | `qwen3.5-4b` | Qwen/Qwen3.5-4B | post-trained | 32 | 2560 | 248 320 | bfloat16 |
 | `qwen3.5-9b-pt` | Qwen/Qwen3.5-9B-Base | base | 32 | 4096 | 248 320 | bfloat16 |
 
-
-
 ### Prompt length
 
 A second measure on prompt length axis with same estimators on 20 prompts from 110 to 158 tokens to check evolution of signature on later positions. Ran on 5 models : gemma-3 `270m`/`4b`/`4b-it`/`12b` + `qwen3.5-9b-pt`. File `prompts_long.txt` available in the repository.
@@ -83,11 +74,11 @@ A second measure on prompt length axis with same estimators on 20 prompts from 1
 
 #### Random orthogonal control
 
-This is a control task in the spirit of Hewitt & Liang 2019: replace J layer by layer by a random orthogonal rotation, QR of a Gaussian with seed 0. Readout code path, 20-prompts set and estimator are the ones used in the experiment. Run on `270m`, `1b`, `4b`, `12b` base checkpoints. 
+This is a control task in the spirit of Hewitt & Liang 2019: replace J layer by layer by a random orthogonal rotation, QR of a Gaussian with seed 0. Readout code path, 20-prompts set and estimator are the ones used in the experiment. Run on `270m`, `1b`, `4b`, `12b` base checkpoints.
 
-The goal: separate the learned structure of J from "any matrix in front of the unembedding". Norms are preserved by isometry and the readout normalises anyway, so this arm tests structure, not scale. 
+The goal: separate the learned structure of J from "any matrix in front of the unembedding". Norms are preserved by isometry and the readout normalises anyway, so this arm tests structure, not scale.
 
-Prediction recorded before the run: the bump must vanish. 
+Prediction recorded before the run: the bump must vanish.
 
 ### Code and data
 
@@ -102,7 +93,7 @@ Public repository: [https://github.com/rbellec/tiny_interpretability_lab/tree/ma
 
 ## Results
 
-Gemma models exhibit an emergence of the signature with scale where the Qwen3.5 models used did not show any related behavior. 
+Gemma models exhibit an emergence of the signature with scale where the Qwen3.5 models used did not show any related behavior.
 
 ### Gemma-3 results
 
@@ -110,7 +101,7 @@ Gemma models exhibit an emergence of the signature with scale where the Qwen3.5 
 
 #### Signature emergence according to model size
 
-As shown in Figure 1, signature bump grows monotonically with scale since `4b` model size: `270m` ≈ 0.25,  `4b` ≈ 1.0, `12b` ≈ 1.9, peak at ~76-79 %. It's absent from `1b` and `1b-it`. `1b` rises at 60 % in both arms, so Δ stays flat. `1b-it` shows a bump above the logit lens at 36–60 % on the raw profile; in Δ it is 0.16, CI touching zero, 12/20 prompts, visible on the median and not reproducible across prompts.
+As shown in Figure 1, signature bump grows monotonically with scale since `4b` model size: `270m` ≈ 0.25, `4b` ≈ 1.0, `12b` ≈ 1.9, peak at ~76-79 %. It's absent from `1b` and `1b-it`. `1b` rises at 60 % in both arms, so Δ stays flat. `1b-it` shows a bump above the logit lens at 36–60 % on the raw profile; in Δ it is 0.16, CI touching zero, 12/20 prompts, visible on the median and not reproducible across prompts.
 
 **Table 2 — Gemma-3, Δ = median(J-lens) − median(logit lens) per layer.** Baseline = median Δ over 25–55 % depth; peak = max Δ over 55–95 %; bump = peak − baseline; 95 % CI by bootstrap over prompts; "prompts > 0" = prompts whose own bump is positive. Band onset = first depth ≥ 25 % where Δ > baseline + 0.3. Motor onset = first depth after 50 % where Δ < 0. Positions ≥ 1, final layer excluded.
 
@@ -125,21 +116,19 @@ As shown in Figure 1, signature bump grows monotonically with scale since `4b` m
 | `12b` | 48 | 0.51 | 2.37 @ 79 % | 1.87 | [1.58 ; 2.17] | 20/20 | 62 % | 96 % |
 | `12b-it` | 48 | 0.66 | 1.81 @ 79 % | 1.15 | [0.90 ; 1.37] | 20/20 | 70 % | 98 % |
 
-`4b-it` model has two bumps on 18/20 prompts and shows a unique behavior not found in other tests. This observation is robust and I have no interpretation. 
+`4b-it` model has two bumps on 18/20 prompts and shows a unique behavior not found in other tests. This observation is robust and I have no interpretation.
 
 ![FIGURE 2 — Δ with prompt-bootstrap CI, `gemma-3-4b-it`, the two bumps](figures/diff_gemma-3-4b-it.png)
 
-The bump on `270m` is consistent but weak: a wide, low bell going from 0.05 to 0.58 and back to 0.17. I do not treat it as load-bearing but the question remains open. 
+The bump on `270m` is consistent but weak: a wide, low bell going from 0.05 to 0.58 and back to 0.17. I do not treat it as load-bearing but the question remains open.
 
 In models displaying the signature, the band opens much later than in (2), between 60% and 64% of layer depth compared to 38% on Claude. Elie Bak locates the band boundary with relative depth ρ ≈ 0.63-0.67 across 38 models. Peak (~78%) and end (92%) stay inside the 38%-92% described in (2). "Motor regime" (where delta becomes negative) starts between 96-98%, which coincides with the 92-100% described in (2). I have no explanation for the later onset.
 
 ![FIGURE 3 — raw J-lens and logit-lens profiles, `gemma-3-12b`, pos ≥ 1, final layer excluded; the view comparable to the paper's figure, what Δ subtracts](figures/raw_gemma-3-12b.png)
 
-
-
 #### Negative Δ and the motor regime
 
-Negative delta (J-lens - Logit lens) may indicate the beginning of "motor regime" and starts earlier in small models. Under zero at `1b` 60 %, `1b-it` 64 %, `4b` 97 %, `12b` 96 %, `12b-it` 98 %. `270m` and `4b-it` never go below zero; `270m-it` only marginally (−0.14 at 94 %). Hypothesis (not verified): in that regime the logit lens already reads the model's final distribution, which is more peaked than what transport through the prompt-averaged Jacobian yields. 
+Negative delta (J-lens - Logit lens) may indicate the beginning of "motor regime" and starts earlier in small models. Under zero at `1b` 60 %, `1b-it` 64 %, `4b` 97 %, `12b` 96 %, `12b-it` 98 %. `270m` and `4b-it` never go below zero; `270m-it` only marginally (−0.14 at 94 %). Hypothesis (not verified): in that regime the logit lens already reads the model's final distribution, which is more peaked than what transport through the prompt-averaged Jacobian yields.
 
 ![FIGURE 4 — depth of first Δ < 0 after 50 %, per model](figures/motor_regime_onset.png)
 
@@ -149,8 +138,7 @@ Considering `-it` vs base models, `-it` models display a smaller amplitude and e
 
 ![FIGURE 5 — Δ of the J-lens arm vs Δ of the random-rotation arm, four gemma base checkpoints](figures/overlay_random_arm.png)
 
-We observe that the random orthogonal arm removes the band at four scales. On `270m` the random arm is not flat and has a small bump of 0.25 around 40-55 %. Not located where the delta bump sits (65 %), but with the same order of magnitude. This is one more reason not to make `270m` load-bearing but I could not investigate more this specific behavior. 
-
+We observe that the random orthogonal arm removes the band at four scales. On `270m` the random arm is not flat and has a small bump of 0.25 around 40-55 %. Not located where the delta bump sits (65 %), but with the same order of magnitude. This is one more reason not to make `270m` load-bearing but I could not investigate more this specific behavior.
 
 
 | model | peak Δ(J−C), 55–95 % depth | peak Δ(R−C), same window |
@@ -166,7 +154,7 @@ This control shows that the band needs the learned structure of J and that `4b`/
 
 ### Qwen3.5 results
 
-Qwen3.5 models tested are `0.8b`, `2b`, `4b` and `9b`. None of the four shows a band, the J-lens profile drifts up in the last third and does not come back down before the final layer. An input spike at layer 0 appears in both arms on `4b` and `9b`, so it comes from the residual stream, not from the lens. I do not have an interpretation of these shapes. The test on `Qwen 3.5 27B` called for by (3) could not be done under the time cap; planned after submission, result in appendix. 
+Qwen3.5 models tested are `0.8b`, `2b`, `4b` and `9b`. None of the four shows a band, the J-lens profile drifts up in the last third and does not come back down before the final layer. An input spike at layer 0 appears in both arms on `4b` and `9b`, so it comes from the residual stream, not from the lens. I do not have an interpretation of these shapes. The test on `Qwen 3.5 27B` called for by (3) could not be done under the time cap; planned after submission, result in appendix.
 
 ![FIGURE 6 — Δ vs relative depth, four qwen3.5 models](figures/overlay_qwen35_all.png)
 
@@ -175,7 +163,7 @@ I referred to the J-lens and logit-lens figures to get more insight:
 ![FIGURE 7 — raw J-lens and logit-lens profiles, four qwen3.5 models, pos ≥ 1, final layer excluded](figures/raw_qwen35_panel.png)
 
 - J-lens rises over the last third in all four.
-- Control is flat till last layers, with a narrow IQR on `0.8b`, `2b` and `4b`. `9b` displays an initial decrease from 2.2 to 0.25 around 60 % then grows. Decrease of delta on the later range is explained by increase of control and not a conjoint decrease of J. 
+- Control is flat till last layers, with a narrow IQR on `0.8b`, `2b` and `4b`. `9b` displays an initial decrease from 2.2 to 0.25 around 60 % then grows. Decrease of delta on the later range is explained by increase of control and not a conjoint decrease of J.
 - The Δ bump on `9b` is J-lens rising from 75 % then control rising after 84 %, neither returns to baseline.
 - `4b` and `9b` hold similarities at input peak and late increase around 75-80%.
 
@@ -196,15 +184,9 @@ From the README of `xiangchensong/jacobian-lens-open-frontier`, section *Why*, v
 
 I can't conclude if the searched behaviour is absent from the family or absent at this size. I hope to gain more insight with additional experiments later.
 
-
-
 #### Outside of the time cap: additional tests on Qwen3
 
 Qwen 3.5 does not propose a `14b` model size. Qwen3 does with a prefitted lens in the registry. To check if a signature appears at `14b` I ran tests on Qwen3 models `1.7B`, `4B`, `8B` and `14B`. Result in appendix.
-
-
-
-
 
 ### Measure over the position-in-context axis
 
@@ -232,7 +214,7 @@ The behavior of the delta measure over position shows a rapid convergence to a p
 | `12b` | 1.32 | 2.26 | 14/20 | [0.35 ; 1.26] |
 | `qwen3.5-9b-pt` | 1.17 | 1.35 | 12/20 | [0.01 ; 0.34] |
 
-There are two readings of this lower position behavior: either the influence of the first tokens properties (attention sink & massive first-token activations) or a need for a few tokens of context. An experiment is planned after submission (time cap): prefix the prompts with a few unrelated tokens and check whether position 4 carries the full signature. 
+There are two readings of this lower position behavior: either the influence of the first tokens properties (attention sink & massive first-token activations) or a need for a few tokens of context. An experiment is planned after submission (time cap): prefix the prompts with a few unrelated tokens and check whether position 4 carries the full signature.
 
 Neither the paper nor the review analyses position. Elie Bak's study measures a different position quantity, how far a perturbation at one position propagates to later positions, not the readout profile at a given position.
 
@@ -247,7 +229,6 @@ Neither the paper nor the review analyses position. Elie Bak's study measures a 
 - Position result was measured on natural prompts, position and content vary together. The unrelated-prefix test that could separate them is in Next steps.
 - Arm 3 (random orthogonal J) was run on gemma only under the cap. It was run afterwards on `qwen3.5-4b`, `qwen3.5-9b-pt`, `qwen3-4b` and `qwen3-8b`, outside the cap; results in the appendix, not used in the text above.
 - Qwen lenses mix base and post-trained checkpoints (Table 1); both base checkpoints show no band either.
-
 
 ## Next steps
 
