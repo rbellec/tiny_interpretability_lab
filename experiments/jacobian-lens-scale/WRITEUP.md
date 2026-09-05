@@ -4,7 +4,26 @@
 
 ## Executive summary
 
-Written later.
+Does the lens-specific kurtosis band reported in (2) on Claude exist in small open models, and does it grow with scale? 
+
+Method: I defined a measure: Δ = median J-lens kurtosis minus median logit-lens kurtosis, per layer. I Ran it on 12 models, gemma-3 `270m` to `12b` base and `-it`, qwen3.5 `0.8b` to `9b` using pre-fitted registry lenses, 20 prompts on all positions ≥ 1.
+
+Results:
+
+- Signature emerges with size on gemma-3: absent at `1b`, bump 1.0 at `4b` and bump 1.9 at `12b`.
+- The band opens later than in the paper, 60–64 % against 38 %, peaks at 76–79 %, then reaches the motor regime at 96–98 % as in the paper.
+- No signature detected in any evaluated qwen3.5: no band up to `9b`; the profile drifts up in the last third and never closes; whether this is family or size cannot be decided at these sizes.
+- Position: model behavior is stable from position 4 up to 150 tokens, in both families.
+
+Control by random orthogonal rotation correctly removed the band at all four scales as expected before the run. 
+
+This is not a claim about existence of a global workspace but an exploration of the emergence of the described signature.  
+
+
+
+
+
+
 
 ![FIGURE ES-1 — Δ (J-lens − logit lens) vs relative depth, eight gemma-3 models](figures/overlay_gemma_all.png)
 ![FIGURE ES-2 — Δ per position bucket, `gemma-3-12b`, long prompts](figures/position_gemma-3-12b_long.png)
@@ -236,7 +255,7 @@ I expect to continue the following experiments soon:
 
 - Measure Gini and pq-mean that satisfy the sparsity axioms of Hurley & Rickard 2009 and kurtosis does not. The band should survive the change of measure if it is a property of the model.
 
-- Measure 27b models on an external pod starting with Qwen to check if results of (3) reproduced on `Qwen3.6 27b` can be reproduced on `Qwen3.5 27b`.
+- Measure `27b` models on an external pod starting with Qwen to check if results of (3) reproduced on `Qwen3.6 27b` can be reproduced on `Qwen3.5 27b`.
 - Neutral prefix for the position axis: prefix the prompts with a few unrelated tokens and check whether position 4 carries the full signature
 
 The following next steps may be interesting and I would look for an informed opinion to decide whether they are worth investigating:
