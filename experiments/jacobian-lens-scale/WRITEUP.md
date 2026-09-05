@@ -1,5 +1,7 @@
 # A lens-specific kurtosis signature emerges with scale in gemma-3 and not in qwen3.5
 
+Raphaël Bellec — work sample for the MATS Winter 2027 application, Neel Nanda stream — September 2026
+
 ## Executive summary
 
 Does the lens-specific kurtosis band reported in (2) on Claude exist in small open models, and does it grow with scale?
